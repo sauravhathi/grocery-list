@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Grocery List</title>
+    <style>
+        .animate-last {
+            animation: animate-last 0.5s ease-in-out;
+        }
+        @keyframes animate-last {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="h-screen bg-gray-100 flex flex-col justify-center items-center">
+        <div class="flex flex-col justify-center items-center bg-white p-8 rounded-lg shadow-lg">
+            <div class="text-2xl font-bold mb-4">
+                <h1>Grocery List</h1>
+            </div>
+            <div class="flex flex-col justify-center">
+                <div class="flex flex-row justify-center">
+                    <input type="text" id="input" class="border-2 border-gray-300 p-2 rounded-md focus:outline-none focus:border-blue-500" size="40" placeholder="Add item">
+                    <button id="add" class="bg-blue-500 text-white py-2 px-6 rounded-md ml-2">Add</button>
+                </div>
+                <div id="list" class="mt-8">
+                </div>
+            </div>
+            <div id="clrAll" class="text-md text-red-500 font-semibold">
+                <span onclick="clrAll()"
+                >Clear All</span>
+            </div>
+        </div>
+        <footer class="mt-8 text-gray-500 text-sm">
+            <p>Created by <a href="https://github.com/sauravhathi" target="_blank" class="text-blue-500">Saurav Hathi</a></p>
+        </footer>
+    </div>
+</body>
+<script>
+    
+    const input = document.getElementById("input");
+    const add = document.getElementById("add");
+    const list = document.getElementById("list");
+
+    add.addEventListener("click", function() {
+        const item = input.value;
+        let items = localStorage.getItem("items");
+        if (items == null) {
+            items = [];
+        } else {
+            items = JSON.parse(items);
+        }
+        items.push(item);
+        localStorage.setItem("items", JSON.stringify(items));
+        input.value = "";
+        show();
+    });
+
+    function show() {
+        let items = localStorage.getItem("items");
+        if (items == null) {
+            items = [];
+            document.getElementById("clrAll").style.display = "none";
+        } else {
+            items = JSON.parse(items);
+            document.getElementById("clrAll").removeAttribute("style");
+        }
+        let html = "";
+        items.forEach(function(item, index) {
+            html += `
+                <ul class="flex flex-row justify-between items-center gap-10 mb-5 animate-last">
+                    <li>
+                        <span class="text-2xl">${item}</span>
+                    </li>
+                    <li class="flex flex-row justify-center items-center">
+                    <img src="edit.png" onclick="edit(${index})" class="w-6 h-6 mr-2 cursor-pointer" alt="edit" />
+                    <img src="delete.png" onclick="del(${index})" class="w-6 h-6 cursor-pointer" alt="delete" />
+                    </li>
+                </ul>
+            `;
+        });
+        list.innerHTML = html;
+    }
+
+    function edit(index) {
+        let items = localStorage.getItem("items");
+        if (items == null) {
+            items = [];
+        } else {
+            items = JSON.parse(items);
+        }
+        let item = items[index];
+        input.value = item;
+        items.splice(index, 1);
+        localStorage.setItem("items", JSON.stringify(items));
+        show();
+    }
+
+    function del(index) {
+        if (confirm("Are you sure you want to delete this item?")) {
+            let items = localStorage.getItem("items");
+            if (items == null) {
+                items = [];
+            } else {
+                items = JSON.parse(items);
+            }
+            items.splice(index, 1);
+            localStorage.setItem("items", JSON.stringify(items));
+            show();
+        }
+    }
+
+    function clrAll() {
+        if (confirm("Are you sure you want to delete all items?")) {
+            localStorage.clear();
+            show();
+        }
+    }
+
+    show();
+
+
+</script>
+</html>
